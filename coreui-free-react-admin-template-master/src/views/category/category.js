@@ -66,15 +66,10 @@ function Category() {
             type="primary">
             Edit
           </Button>
-          <Popconfirm
-            title="Are you sure？"
-            icon={<DeleteOutlined style={{ color: "red" }} />}
-            // onConfirm={() => deleteCategory(record)}
-          >
-            <Button type="primary" danger>
+          
+            <Button onClick={() => handledelete(record)} type="primary" danger>
               Delete
             </Button>
-          </Popconfirm>
         </Space>
       ),
     },
@@ -82,7 +77,21 @@ function Category() {
 
   const [data,setdata] = useState([]);
   const [isModalVisible, setIsModalVisible] = useState(false);
-
+  const handledelete = (record) => {
+   
+      console.log(">>value",record)
+      const createCate = async () => {
+        try {
+          const response = await categoryApi.deleteCate(record._id);
+          console.log(response);
+          setdata(data.filter((dt) => dt._id !== record._id))
+        } catch (error) {
+          console.log( error);
+        }
+      };
+      createCate();
+   
+  }
   const showModal = () => {
     setIsModalVisible(true);
   };

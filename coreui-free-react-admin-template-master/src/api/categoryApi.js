@@ -9,6 +9,10 @@ class CategoryApi {
     const url = "/api/categories";
     return axiosClient.post(url,params);
   };
+  deleteCate = (params) => {
+    const url = `/api/categories/${params}`;
+    return axiosClient.delete(url);
+  };
   
 }
 const categoryApi = new CategoryApi();
