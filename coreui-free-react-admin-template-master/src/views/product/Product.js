@@ -28,33 +28,26 @@ function Product() {
       title: "Name",
       dataIndex: "name",
       key: "name",
-      width: 200,
+ 
     },
     {
-      title: "Image",
-      dataIndex: "imagesProduct",
-      key: "imagesProduct",
-      width: 200,
-      // render: (images) => (
-      //   <img style={{ width: "100%" }} src={`${locallink}/${images}`} />
-      // ),
+      title: "image",
+      dataIndex: "image",
+      key: "image",
+ 
+      render: (images) => (
+        <img style={{ width: "100%" }} src={`http://localhost:3000/${images}`} />
+      ),
     },
     {
       title: "Quantity",
       dataIndex: "quantity",
       key: "quantity",
     },
-    {
-      title: "Category",
-      dataIndex: "categoryId",
-      key: "categoryId",
-      width: 100,
-      // render: (category) => <p>{category}</p>,
-      // render: (category) => getCatenamebyid(category),
-    },
+   
     {
       title: "Description",
-      width: 250,
+
       dataIndex: "description",
       key: "description",
     },
@@ -62,9 +55,8 @@ function Product() {
       title: "Price",
       dataIndex: "prices",
       key: "prices",
-      width: 150,
-      render: (text) => <p>{text} VND</p>,
-      sorter: (a, b) => a.prices - b.prices,
+    
+  
     },
     {
       title: "Create at",
@@ -166,10 +158,10 @@ function Product() {
   useEffect(() => {
     const getProduct = async () => {
       try {
-        const itemPro = "Item created";
+    
         const response = await productApi.getAll();
         console.log("Succesfully: ", response);
-        setdata(response.itemPro);
+        setdata(response.ProductList);
         setIsLoading(false);
       } catch (error) {
         console.log("failed to fetch product list: ", error);

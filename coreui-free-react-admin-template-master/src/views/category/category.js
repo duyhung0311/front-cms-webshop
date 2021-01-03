@@ -40,62 +40,20 @@ import {
 } from "./action/actionCreater";
 function Category() {
   const [form] = Form.useForm();
-  const [isvisible, SetVisible] = useState(false);
-  const [loadingmodal, setloadingmodal] = useState(false);
-  const [detail, setdetail] = useState(null);
-  const [stateidCategory, setidCategory] = useState(null);
-  const [tabledata, settabledata] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
-
-  const updateCategory = (record) => {
-    setdetail(record);
-    form.setFieldsValue(record);
-    SetVisible(!isvisible);
-    setidCategory(record._id);
-  };
-  const toggle = () => {
-    setdetail(null);
-    SetVisible(!isvisible);
-    form.resetFields();
-  };
-  const deleteCategory = (record) => {
-    const fetchDeleteProduct = async () => {
-      try {
-        setIsLoading(true);
-        const response = await categoryApi.deletecategory(record._id);
-        console.log("Fetch category successfully: ", response);
-        notification.info({
-          message: `Deleted Successfully`,
-          icon: <DeleteOutlined style={{ color: "#FF0000" }} />,
-          description: `You have deleted ${record.name}`,
-          placement: "bottomRight",
-        });
-        settabledata(tabledata.filter((item) => item._id !== record._id));
-        setIsLoading(false);
-      } catch (error) {
-        console.log("failed to fetch product list: ", error);
-      }
-    };
-    fetchDeleteProduct();
-  };
+ 
+  
   const columns = [
+    {
+      title: "Category ID",
+      dataIndex: "_id",
+      key: "_id",
+    },
+
     {
       title: "Name",
       dataIndex: "name",
       key: "name",
-      // render: (text) => <a>{text}</a>,
     },
-
-    // {
-    //   title: "Create at",
-    //   dataIndex: "createAt",
-    //   key: "createAt",
-    //   render: (time) => (
-    //     <p>
-    //       <Moment format="DD/MM/YYYY hh:mm">{time}</Moment>
-    //     </p>
-    //   ),
-    // },
 
     {
       title: "Action",
@@ -103,13 +61,15 @@ function Category() {
       width: 200,
       render: (text, record) => (
         <Space size="middle">
-          <Button onClick={() => updateCategory(record)} type="primary">
+          <Button
+          //  onClick={() => updateCategory(record)}
+            type="primary">
             Edit
           </Button>
           <Popconfirm
             title="Are you sure？"
             icon={<DeleteOutlined style={{ color: "red" }} />}
-            onConfirm={() => deleteCategory(record)}
+            // onConfirm={() => deleteCategory(record)}
           >
             <Button type="primary" danger>
               Delete
@@ -120,113 +80,16 @@ function Category() {
     },
   ];
 
-  const handleOk = () => {
-    if (detail === null) {
-      form
-        .validateFields()
-        .then((values) => {
-          form.resetFields();
-          console.log(">>>value", values);
-          var CurrentDate = moment().toISOString();
-
-          const fetchCreateProduct = async () => {
-            // dispatch({ type: "FETCH_INIT" });
-            try {
-              setloadingmodal(true);
-
-              const data = {
-                ...values,
-                createAt: CurrentDate,
-              };
-              // const params = { _page: 1, _limit: 10 };
-              const response = await categoryApi.createcategory(data);
-              console.log("Fetch category succesfully: ", response);
-              console.log(">>>response.newCategories", response.newCategories);
-              settabledata([...tabledata, response.newCategories]);
-              console.log("tabledata: ", tabledata);
-              setloadingmodal(false);
-
-              notification.info({
-                message: `Created Successfully`,
-                icon: <CheckCircleOutlined style={{ color: "#33CC33" }} />,
-                placement: "bottomRight",
-              });
-            } catch (error) {
-              console.log("failed to fetch product list: ", error);
-              // dispatch(doCreate_error);
-            }
-          };
-          fetchCreateProduct();
-        })
-        .catch((info) => {
-          console.log("Validate Failed:", info);
-        });
-    } else {
-      form.validateFields().then((values) => {
-        const fetchUpdateCategory = async () => {
-          try {
-            var CurrentDate = moment().toISOString();
-
-            const database = { ...values, createAt: CurrentDate };
-            const datacate = { _id: stateidCategory, data: database };
-            setloadingmodal(true);
-            const response = await categoryApi.updatecategory(datacate);
-            console.log("Fetch update products succesfully: ", response);
-            setloadingmodal(false);
-            const fetchCategoryList = async () => {
-              dispatchCategory(doGetList);
-              try {
-                setIsLoading(true);
-
-                const response = await categoryApi.getAll();
-                console.log("Fetch products succesfully: ", response);
-                dispatchCategory(doGetList_success(response.categories));
-                settabledata(response.categories);
-                setIsLoading(false);
-              } catch (error) {
-                console.log("failed to fetch product list: ", error);
-                dispatchCategory(doGetList_error);
-              }
-            };
-            fetchCategoryList();
-            notification.info({
-              message: `Update Successfully`,
-              icon: <CheckCircleOutlined style={{ color: "#33CC33" }} />,
-              placement: "bottomRight",
-            });
-          } catch (error) {
-            console.log("failed to fetch product list: ", error);
-          }
-        };
-        fetchUpdateCategory();
-      });
-    }
-  };
-  const [categoryList, dispatchCategory] = useReducer(dataFetchReducer, {
-    isLoading: false,
-    isError: false,
-    data: [],
-  });
+  const [data,setdata] = useState([]);
+  
   useEffect(() => {
     const fetchCategoryList = async () => {
-      // dispatch({ type: "FETCH_INIT" });
-      dispatchCategory(doGetList);
       try {
-        setIsLoading(true);
-        // const params = { _page: 1, _limit: 10 };
-
         const response = await categoryApi.getAll();
         console.log("Fetch products successfully: ", response);
-        // console.log(response.products);
-        // setProductList(response.products);
-        // dispatch({ type: "FETCH_SUCCESS", payload: response.products });
-        dispatchCategory(doGetList_success(response.categories));
-        settabledata(response.categories);
-        // console.log(">>>> productlist: ", productList);
-        setIsLoading(false);
+        setdata(response.ListCateCreated);
       } catch (error) {
         console.log("failed to fetch product list: ", error);
-        dispatchCategory(doGetList_error);
       }
     };
     fetchCategoryList();
@@ -244,29 +107,25 @@ function Category() {
           }}
           shape="pill"
           color="info"
-          onClick={toggle}
+          // onClick={toggle}
         >
           {/* <i style={{ fontSize: "20px" }} class="cil-playlist-add"></i>  */}
           Add Category
         </CButton>
         <CCardBody>
-          {isLoading ? (
-            <div style={{ textAlign: "center" }}>
-              <Spin size="large" />
-            </div>
-          ) : (
-              <Table columns={columns} dataSource={tabledata} rowKey="_id" />
-            )}
+         
+              <Table columns={columns} dataSource={data} rowKey="_id" />
+          
         </CCardBody>
       </CCard>
       <Modal
-        title={detail ? "UPDATE CATEGORY" : "ADD CATEGORY"}
-        visible={isvisible}
-        onOk={handleOk}
-        onCancel={toggle}
+        // title={detail ? "UPDATE CATEGORY" : "ADD CATEGORY"}
+        // visible={isvisible}
+        // onOk={handleOk}
+        // onCancel={toggle}
         style={{ marginTop: "5%" }}
       >
-        <Spin spinning={loadingmodal} size="large">
+        {/* <Spin spinning={loadingmodal} size="large"> */}
           <Form
             // initialValues={{ size: componentSize }}
             // onValuesChange={onFormLayoutChange}
@@ -286,7 +145,7 @@ function Category() {
               </Col>
             </Row>
           </Form>
-        </Spin>
+        {/* </Spin> */}
       </Modal>
     </>
   )
