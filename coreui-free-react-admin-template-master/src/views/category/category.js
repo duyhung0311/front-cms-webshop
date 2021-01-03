@@ -81,18 +81,41 @@ function Category() {
   ];
 
   const [data,setdata] = useState([]);
-  
+  const [isModalVisible, setIsModalVisible] = useState(false);
+
+  const showModal = () => {
+    setIsModalVisible(true);
+  };
+  const closeModal = () => {
+    setIsModalVisible(false);
+  };
+  const createCate = () => {
+   
+    form.validateFields().then((values) => {
+      console.log(">>value",values)
+      const createCate = async () => {
+        try {
+          const response = await categoryApi.createCate(values);
+          console.log(response);
+        } catch (error) {
+          console.log( error);
+        }
+      };
+      createCate();
+    })
+    
+  }
   useEffect(() => {
-    const fetchCategoryList = async () => {
+    const Cateapilist = async () => {
       try {
         const response = await categoryApi.getAll();
-        console.log("Fetch products successfully: ", response);
+        console.log(response);
         setdata(response.ListCateCreated);
       } catch (error) {
-        console.log("failed to fetch product list: ", error);
+        console.log( error);
       }
     };
-    fetchCategoryList();
+    Cateapilist();
   }, []);
   return (
     <>
@@ -107,10 +130,10 @@ function Category() {
           }}
           shape="pill"
           color="info"
-          // onClick={toggle}
+          onClick={showModal}
         >
-          {/* <i style={{ fontSize: "20px" }} class="cil-playlist-add"></i>  */}
-          Add Category
+        
+        Create
         </CButton>
         <CCardBody>
          
@@ -119,10 +142,10 @@ function Category() {
         </CCardBody>
       </CCard>
       <Modal
-        // title={detail ? "UPDATE CATEGORY" : "ADD CATEGORY"}
-        // visible={isvisible}
-        // onOk={handleOk}
-        // onCancel={toggle}
+        title="CATEGORY"
+        visible={isModalVisible}
+        onOk={createCate}    
+        onCancel ={closeModal}
         style={{ marginTop: "5%" }}
       >
         {/* <Spin spinning={loadingmodal} size="large"> */}
@@ -133,16 +156,12 @@ function Category() {
             size={"large"}
           >
             <Row style={{ display: "flex", justifyContent: "space-between" }}>
-              <Col span={12}>
+              <Col span={24}>
                 <Form.Item name="name">
                   <Input placeholder="Category name" />
                 </Form.Item>
               </Col>
-              <Col span={12}>
-                <Form.Item name="name">
-                  <Input placeholder="action name" />
-                </Form.Item>
-              </Col>
+            
             </Row>
           </Form>
         {/* </Spin> */}
