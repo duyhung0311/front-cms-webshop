@@ -10,7 +10,11 @@ import {
   Button,
   notification,
   Popconfirm,
+  Modal,
+  Input, Select, Upload, message
 } from "antd";
+import dataFetchReducer from "./reducer/index";
+import { dataFetchReducer as dataFetchReducerCategory } from ".././category/reducer/index";
 import moment from "moment";
 import Moment from "react-moment";
 import {
@@ -21,6 +25,7 @@ import {
 import "./style.css";
 import productApi from "../../api/productApi";
 
+import { UploadOutlined } from '@ant-design/icons';
 
 function Product() {
   const columns = [
@@ -28,13 +33,13 @@ function Product() {
       title: "Name",
       dataIndex: "name",
       key: "name",
- 
+
     },
     {
       title: "image",
       dataIndex: "image",
       key: "image",
- 
+
       render: (images) => (
         <img style={{ width: "100%" }} src={`http://localhost:3000/${images}`} />
       ),
@@ -44,7 +49,7 @@ function Product() {
       dataIndex: "quantity",
       key: "quantity",
     },
-   
+
     {
       title: "Description",
 
@@ -55,8 +60,8 @@ function Product() {
       title: "Price",
       dataIndex: "prices",
       key: "prices",
-    
-  
+
+
     },
     {
       title: "Create at",
@@ -81,7 +86,7 @@ function Product() {
           <Popconfirm
             title="Are you sure？"
             icon={<DeleteOutlined style={{ color: "red" }} />}
-            // onConfirm={() => deleteProduct(record)}
+          // onConfirm={() => deleteProduct(record)}
           >
             <Button type="primary" danger>
               Delete
@@ -92,6 +97,10 @@ function Product() {
       ),
     },
   ];
+  const uploadimg = (info) => {
+    console.log(">>>>info: ", info);
+    console.log(fileList);
+  };
   // upload image
   const [form] = Form.useForm();
   const [fileList, setfileList] = useState([]);
@@ -103,109 +112,130 @@ function Product() {
   const [detail, setdetail] = useState(null);
   const [imgfile, setimgfile] = useState(null);
   const [data, setdata] = useState([]);
+  const [isModalVisible, setIsModalVisible] = useState(false);
 
-  const handleOk = (values) => {
-    if (detail === null) {
-      form
-        .validateFields()
-        .then((values) => {
-          form.resetFields();
-          // onCreate(values);
-          console.log(">>>value", values);
-          var CurrentDate = moment().toISOString();
+    const handleOk = (values) => {
+      if (detail === null) {
+        form
+          .validateFields()
+          .then((values) => {
+            form.resetFields();
+            // onCreate(values);
+            console.log(">>>value", values);
+            var CurrentDate = moment().toISOString();
 
-          const data = {
-            ...values,
-            imagesProduct: imgfile,
-            createAt: CurrentDate,
-          };
-          console.log("data >>>", data);
-          var form_data = new FormData();
+            const data = {
+              ...values,
+              imagesProduct: imgfile,
+              createAt: CurrentDate,
+            };
+            console.log("data >>>", data);
+            var form_data = new FormData();
 
-          for (var key in data) {
-            form_data.append(key, data[key]);
-          }
-          const fetchCreateProduct = async () => {
-            try {
-              // setloadingmodal(true);
-              const response = await productApi.createproduct(form_data);
-              console.log("Fetch products succesfully: ", response);
-              setstate({ ...state, fileList: [] });
-              setdata([...data, response.newProducts]);
-              setimgfile(null);
-              // setloadingmodal(false);
-              notification.info({
-                message: `Created Successfully`,
-                icon: <CheckCircleOutlined style={{ color: "#33CC33" }} />,
-                placement: "bottomRight",
-              });
-            } catch (error) {
-              console.log("failed to fetch product list: ", error);
+            for (var key in data) {
+              form_data.append(key, data[key]);
             }
-          };
-          fetchCreateProduct();
-        })
-        .catch((info) => {
-          console.log("Validate Failed:", info);
-        });
-    }
-  };
-
-  const initialData = [];
-  const [isLoading, setIsLoading] = useState(false);
-  const [isvisible, SetVisible] = useState(false);
-
-  useEffect(() => {
-    const getProduct = async () => {
-      try {
-    
-        const response = await productApi.getAll();
-        console.log("Succesfully: ", response);
-        setdata(response.ProductList);
-        setIsLoading(false);
-      } catch (error) {
-        console.log("failed to fetch product list: ", error);
+            const fetchCreateProduct = async () => {
+              try {
+                // setloadingmodal(true);
+                const response = await productApi.createproduct(form_data);
+                console.log("Fetch products succesfully: ", response);
+                setstate({ ...state, fileList: [] });
+                setdata([...data, response.newProducts]);
+                setimgfile(null);
+                // setloadingmodal(false);
+                notification.info({
+                  message: `Created Successfully`,
+                  icon: <CheckCircleOutlined style={{ color: "#33CC33" }} />,
+                  placement: "bottomRight",
+                });
+              } catch (error) {
+                console.log("failed to fetch product list: ", error);
+              }
+            };
+            fetchCreateProduct();
+          })
+          .catch((info) => {
+            console.log("Validate Failed:", info);
+          });
       }
     };
-    getProduct();
-  }, []);
-  
-  const handleClick = () => {
-    setdetail(null);
-    SetVisible(!isvisible);
-  };
 
-  return (
-    <>
-      <CCard>
-        <CCardHeader className="CCardHeader-title ">Product</CCardHeader>
-        <Row>
-          <Col lg={14}>
-            <CButton
-              style={{
-                width: "200px",
-                height: "50px",
-                margin: "20px 0px 20px 20px",
-              }}
-              shape="pill"
-              color="info"
-              onClick={handleClick}
-            >
-              {/* <i style={{ fontSize: "20px" }} class="cil-playlist-add"></i>  */}
+    const initialData = [];
+    const [isLoading, setIsLoading] = useState(false);
+    const [isvisible, SetVisible] = useState(false);
+
+    useEffect(() => {
+      const getProduct = async () => {
+        try {
+
+          const response = await productApi.getAll();
+          console.log("Succesfully: ", response);
+          setdata(response.ProductList);
+          setIsLoading(false);
+        } catch (error) {
+          console.log("failed to fetch product list: ", error);
+        }
+      };
+      getProduct();
+    }, []);
+    const createPro = () => {
+
+      form.validateFields().then((values) => {
+        console.log(">>value", values)
+        const createPro = async () => {
+          try {
+            const response = await productApi.createPro(values);
+            console.log(response);
+          } catch (error) {
+            console.log(error);
+          }
+        };
+        createPro();
+      })
+
+    }
+    const handleClick = () => {
+      setIsModalVisible(true);
+
+    };
+    const closeModal = () => {
+      setIsModalVisible(false);
+    };
+
+    return (
+      <>
+        <CCard>
+          <CCardHeader className="CCardHeader-title ">Product</CCardHeader>
+          <Row>
+            <Col lg={14}>
+              <CButton
+                style={{
+                  width: "200px",
+                  height: "50px",
+                  margin: "20px 0px 20px 20px",
+                }}
+                shape="pill"
+                color="info"
+                onClick={handleClick}
+              >
+                {/* <i style={{ fontSize: "20px" }} class="cil-playlist-add"></i>  */}
               Add Product
             </CButton>
-          </Col>
-        </Row>
-      </CCard>
-      {isLoading ? (
-        <div style={{ textAlign: "center" }}>
-          <Spin size="large" />
-        </div>
-      ) : (
-        <Table columns={columns} dataSource={data} rowKey="_id" />
-      )}
-    </>
-  );
-}
+            </Col>
+          </Row>
+        </CCard>
+        {isLoading ? (
+          <div style={{ textAlign: "center" }}>
+            <Spin size="large" />
+          </div>
+        ) : (
+            <Table columns={columns} dataSource={data} rowKey="_id" />
+          )}
 
-export default Product;
+
+      </>
+    );
+  }
+
+  export default Product;
